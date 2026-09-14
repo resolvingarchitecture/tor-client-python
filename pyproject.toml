@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tor-client"
+version = "0.1.0"
+description = "A local-only Tor client for the RA / 1M5 ecosystem (attaches to a host Tor daemon's SOCKS proxy)."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [{ name = "Brian Taylor", email = "brian@resolvingarchitecture.io" }]
+keywords = ["tor", "socks5", "network", "1m5"]
+classifiers = [
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = ["ra-common"]
+
+[project.urls]
+Homepage = "https://resolvingarchitecture.io"
+Repository = "https://github.com/resolvingarchitecture/tor-client-python"
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tor_client"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
