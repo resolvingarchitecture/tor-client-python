@@ -1,14 +1,14 @@
-# tor-client (Python)
+# tor (Python)
 
 A local-only Tor client for **1M5**: attaches to a Tor daemon already
 running on this host — SOCKS5 proxy `127.0.0.1:9050`, control port
 `127.0.0.1:9051` (probed for readiness only).
 
-A Python port of [`tor-client-java`](https://github.com/resolvingarchitecture/tor-client-java);
-mirrors the *local* backend of [`tor-client-rust`](https://github.com/resolvingarchitecture/tor-client-rust)
+A Python port of [`tor-java`](https://github.com/resolvingarchitecture/tor-java);
+mirrors the *local* backend of [`tor-rust`](https://github.com/resolvingarchitecture/tor-rust)
 (no embedded backend — Arti is Rust-only, see `DESIGN.md`).
 
-**This local-daemon-only model is being retired.** `tor-client-java` no longer
+**This local-daemon-only model is being retired.** `tor-java` no longer
 attaches to a pre-existing Tor instance at all - it downloads the official Tor
 Project binary, verifies it, and spawns/owns it directly, so there is no
 fallback to some other already-running Tor anywhere in that library. This port
@@ -16,7 +16,7 @@ should adopt the same model; see "Embedded Tor (planned)" below and `TODO.md`.
 
 ## Embedded Tor (planned)
 
-Not implemented yet. The plan, matching `tor-client-java`'s current design -
+Not implemented yet. The plan, matching `tor-java`'s current design -
 and genuinely simpler here than in most other ports, since the stdlib already
 covers every primitive needed:
 
@@ -25,7 +25,7 @@ covers every primitive needed:
    new dependency), verify its SHA-256 against a value pinned in this port's
    own source (`hashlib.sha256` - stdlib; never trusted from the network
    alongside the download itself), and extract it with the stdlib `tarfile`
-   module - no need to shell out to the system `tar` the way `tor-client-java`
+   module - no need to shell out to the system `tar` the way `tor-java`
    does, since Python's stdlib has a real tar reader.
 2. Spawn it (`subprocess.Popen`) with a generated `torrc` (`SocksPort auto`,
    `ControlPort auto`, real `CookieAuthentication 1`,
@@ -54,7 +54,7 @@ Then `systemctl start tor` (or `tor -f ~/.torrc`). Check:
 
 ```python
 from ra_common.envelope import Envelope
-from tor_client import TorClient
+from tor import TorClient
 
 client = TorClient.from_config({})
 if client.start():                       # False (cleanly) if Tor is unavailable

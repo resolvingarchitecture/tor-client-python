@@ -3,7 +3,7 @@ from __future__ import annotations
 import socket
 import threading
 
-from tor_client.detector import LocalTorDetector
+from tor.detector import LocalTorDetector
 
 
 def _listening_port() -> tuple[socket.socket, int]:

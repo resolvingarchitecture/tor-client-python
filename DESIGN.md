@@ -1,14 +1,14 @@
-# tor-client (Python) — Design
+# tor (Python) — Design
 
 A local-only Tor client: attaches to a Tor daemon already running on the
 host via its SOCKS proxy, for use as the Tor **protocol service** by a
 future `1m5-core-python`. A Python port of the design in
-[`tor-client-java`](https://github.com/resolvingarchitecture/tor-client-java),
-trimmed to the same scope `tor-client-rust`'s *local* backend covers.
+[`tor-java`](https://github.com/resolvingarchitecture/tor-java),
+trimmed to the same scope `tor-rust`'s *local* backend covers.
 
 ## Where it sits
 
-    (future) 1m5-core-python  ──wraps──►  tor_client.TorClient
+    (future) 1m5-core-python  ──wraps──►  tor.TorClient
                                                   │
                                      SOCKS5 127.0.0.1:9050
                                      control 127.0.0.1:9051 (probe only)
@@ -21,19 +21,19 @@ adapters do; this repo only provides the client itself.
 
 ## No embedded backend (current state - being retired, see TODO.md)
 
-Unlike `tor-client-rust`, there is no `Mode { Local, Embedded, Auto }` here.
+Unlike `tor-rust`, there is no `Mode { Local, Embedded, Auto }` here.
 Rust's `embedded` backend runs [Arti](https://gitlab.torproject.org/tpo/core/arti),
 the Tor Project's pure-**Rust** Tor implementation, in-process — there is no
-pure-Python equivalent to embed. So, like `tor-client-java` *used to* (Tor is
+pure-Python equivalent to embed. So, like `tor-java` *used to* (Tor is
 a C daemon it can't keep updated in-process either - or so the reasoning went),
 this client only ever attaches to a Tor instance **installed and running on
-the host**. See `tor-client-rust/DESIGN.md` for the embedded design, kept
+the host**. See `tor-rust/DESIGN.md` for the embedded design, kept
 there as the reference for what a future FFI-based embedded backend (binding
-Arti's C API, or `tor-client-rust` built as a shared library) would need to
+Arti's C API, or `tor-rust` built as a shared library) would need to
 provide across every non-Rust port — a separate project, not part of this one.
 
 **The "can't keep updated in-process" reasoning turned out not to require a
-pure-Python Tor implementation to get around.** `tor-client-java` embeds Tor
+pure-Python Tor implementation to get around.** `tor-java` embeds Tor
 now by downloading and spawning the same official C `tor` binary Tor Project
 itself builds and signs - it doesn't maintain a Tor build at all, so there's
 nothing to "keep updated." That approach needs no FFI, no in-language Tor
@@ -45,7 +45,7 @@ rewritten, not just amended.
 ## Components
 
     LocalTorDetector   probes SOCKS 9050 + control 9051 (socket.create_connection)
-                        so start() fails fast, mirrors tor-client-rust's detector
+                        so start() fails fast, mirrors tor-rust's detector
     socks              minimal SOCKS5 CONNECT client, no auth (stdlib socket only)
     http               fetch_via_socks / parse_url / format_get / split_body;
                         http:// only, no TLS
@@ -63,7 +63,7 @@ response body to `envelope.headers["body"]`.
 (`DocumentMessage`/`TextMessage`/…) instead. Rather than force a
 `DocumentMessage` on every caller, this client puts the raw response bytes
 on `envelope.headers["body"]`, keeping the same headers-in/headers-out
-contract `tor-client-rust` uses (`headers["url"]` in, `headers["error"]` on
+contract `tor-rust` uses (`headers["url"]` in, `headers["error"]` on
 failure) rather than inventing a payload convention `ra_common.Envelope`
 doesn't have.
 
@@ -73,14 +73,14 @@ doesn't have.
 
 `Status` is its own 4-state enum (`Connecting`, `Connected`, `Disconnected`,
 `Error`) — not `ra_common`'s 13-state `NetworkStatus` — matching
-`tor-client-rust`'s deliberate choice to keep a small, protocol-service-facing
+`tor-rust`'s deliberate choice to keep a small, protocol-service-facing
 status distinct from the full network status vocabulary. `start()` sets
 `Connecting`, then `Connected` if the daemon answers or `Disconnected`
 (cleanly, no exception) if not. `stop()` → `Disconnected`.
 
 ## Config keys
 
-Same names as `tor-client-rust` (`ra.tor.mode`/`ra.tor.dataDir` dropped —
+Same names as `tor-rust` (`ra.tor.mode`/`ra.tor.dataDir` dropped —
 no embedded mode to select): `ra.tor.host`, `ra.tor.socksPort`,
 `ra.tor.controlPort`, `ra.tor.requestTimeoutSecs`.
 
@@ -97,7 +97,7 @@ no embedded mode to select): `ra.tor.host`, `ra.tor.socksPort`,
   stdlib; a plain lock is the idiomatic choice here, mirroring how
   `service-bus-python` guards shared state.
 - The Tor control protocol client (`TORControlConnection` & friends) is not
-  ported, same gap `tor-client-rust` has.
+  ported, same gap `tor-rust` has.
 
 ## Not here
 

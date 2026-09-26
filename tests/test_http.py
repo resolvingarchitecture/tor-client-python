@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from tor_client.http import format_get, parse_url, split_body
+from tor.http import format_get, parse_url, split_body
 
 
 def test_parse_url_with_path_and_port():

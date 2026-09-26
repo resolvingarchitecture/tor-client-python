@@ -1,4 +1,4 @@
-# tor-client (Python) — TODO
+# tor (Python) — TODO
 
 ## P0 — local client (done)
 
@@ -7,12 +7,12 @@
 - [x] Hand-rolled SOCKS5 CONNECT (no auth) on stdlib `socket`.
 - [x] HTTP/1.1 GET through the SOCKS tunnel; response body on
       `envelope.headers["body"]`.
-- [x] Config keys aligned with `tor-client-rust`: `ra.tor.host`,
+- [x] Config keys aligned with `tor-rust`: `ra.tor.host`,
       `ra.tor.socksPort`, `ra.tor.controlPort`, `ra.tor.requestTimeoutSecs`.
 
-## P0.5 — Embedded Tor (planned, matching tor-client-java's new model)
+## P0.5 — Embedded Tor (planned, matching tor-java's new model)
 
-`tor-client-java` no longer attaches to a pre-existing Tor daemon at all - it
+`tor-java` no longer attaches to a pre-existing Tor daemon at all - it
 downloads the official Tor Project binary, verifies it, and spawns/owns it
 directly (see its README.md "Trust model" / DESIGN.md "Why embedded"). Not
 started here yet - genuinely simpler than most other ports since the stdlib
@@ -47,7 +47,7 @@ already covers every primitive needed (no new dependency required at all):
 ## P2 — Tor control protocol
 
 - [ ] Port `TORControlConnection` / `TORControlCommands` from
-      `tor-client-java` (authenticate with `CookieAuthentication 0` or a
+      `tor-java` (authenticate with `CookieAuthentication 0` or a
       control password).
 - [ ] Async event stream (`SETEVENTS`) → map `CIRC` / `STATUS_CLIENT` onto
       `Status`; live readiness instead of a one-shot probe.
@@ -57,7 +57,7 @@ already covers every primitive needed (no new dependency required at all):
 
 - [ ] Create or load an onion service key, `ADD_ONION` via the control port.
 - [ ] Accept connections on the HS target port, turn requests into
-      `Envelope`s (mirrors `tor-client-java`'s HS handler).
+      `Envelope`s (mirrors `tor-java`'s HS handler).
 
 ## P4 — privacy hardening
 
@@ -75,8 +75,8 @@ already covers every primitive needed (no new dependency required at all):
 
 ## Cross-repo
 
-- [ ] Keep `Status` and config keys aligned with `tor-client-java` 1.2.x and
-      `tor-client-rust`'s local backend.
+- [ ] Keep `Status` and config keys aligned with `tor-java` 1.2.x and
+      `tor-rust`'s local backend.
 - [ ] Wire into a future `1m5-core-python`'s protocol-service adapter, same
       pattern as `NetworkServiceProtocol`/`TorProtocolService` in
       `1m5-core-java` and `1m5-core-rust`.

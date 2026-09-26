@@ -5,7 +5,7 @@ import threading
 
 from ra_common.envelope import Envelope
 
-from tor_client import Status, TorClient
+from tor import Status, TorClient
 
 
 def test_start_fails_cleanly_without_a_daemon():
