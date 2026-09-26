@@ -10,6 +10,31 @@
 - [x] Config keys aligned with `tor-client-rust`: `ra.tor.host`,
       `ra.tor.socksPort`, `ra.tor.controlPort`, `ra.tor.requestTimeoutSecs`.
 
+## P0.5 — Embedded Tor (planned, matching tor-client-java's new model)
+
+`tor-client-java` no longer attaches to a pre-existing Tor daemon at all - it
+downloads the official Tor Project binary, verifies it, and spawns/owns it
+directly (see its README.md "Trust model" / DESIGN.md "Why embedded"). Not
+started here yet - genuinely simpler than most other ports since the stdlib
+already covers every primitive needed (no new dependency required at all):
+
+- [ ] `TorBinary`-equivalent: resolve OS/arch (`platform.system()`/
+      `platform.machine()`), download the official Tor Project Expert Bundle
+      into a local cache (first run only, `urllib.request` - stdlib HTTPS),
+      verify its SHA-256 (`hashlib.sha256`) against a value pinned in this
+      port's own source (never trusted from the network alongside the
+      download), extract with the stdlib `tarfile` module.
+- [ ] `EmbeddedTor`-equivalent: spawn via `subprocess.Popen` with a generated
+      `torrc` (`SocksPort auto`, `ControlPort auto`, real
+      `CookieAuthentication 1`, `__OwningControllerProcess <our pid>`).
+- [ ] A *minimal* control client - `AUTHENTICATE` with the real cookie,
+      `GETINFO status/bootstrap-phase` (poll until `PROGRESS=100`), `GETINFO
+      net/listeners/socks` - a subset of the full `TORControlConnection` port
+      in P2 below; P0.5 doesn't need the rest of P2 to land first.
+- [ ] Never fall back to attaching to some other Tor instance if provisioning
+      or bootstrap fails - fail closed (`start()` returns `False`, never
+      raises), matching every other port's existing "fails cleanly" contract.
+
 ## P1 — request path
 
 - [ ] HTTPS (`ssl.SSLContext` wrapped around the SOCKS socket).

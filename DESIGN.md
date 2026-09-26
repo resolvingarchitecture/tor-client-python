@@ -19,18 +19,28 @@ A router service would discover this client by name/type and push a
 routing-slip hop carrying the destination URL, same as the Rust and Java
 adapters do; this repo only provides the client itself.
 
-## No embedded backend
+## No embedded backend (current state - being retired, see TODO.md)
 
 Unlike `tor-client-rust`, there is no `Mode { Local, Embedded, Auto }` here.
 Rust's `embedded` backend runs [Arti](https://gitlab.torproject.org/tpo/core/arti),
 the Tor Project's pure-**Rust** Tor implementation, in-process — there is no
-pure-Python equivalent to embed. So, like `tor-client-java` (Tor is a C
-daemon it can't keep updated in-process either), this client only ever
-attaches to a Tor instance **installed and running on the host**. See
-`tor-client-rust/DESIGN.md` for the embedded design, kept there as the
-reference for what a future FFI-based embedded backend (binding Arti's C API,
-or `tor-client-rust` built as a shared library) would need to provide across
-every non-Rust port — a separate project, not part of this one.
+pure-Python equivalent to embed. So, like `tor-client-java` *used to* (Tor is
+a C daemon it can't keep updated in-process either - or so the reasoning went),
+this client only ever attaches to a Tor instance **installed and running on
+the host**. See `tor-client-rust/DESIGN.md` for the embedded design, kept
+there as the reference for what a future FFI-based embedded backend (binding
+Arti's C API, or `tor-client-rust` built as a shared library) would need to
+provide across every non-Rust port — a separate project, not part of this one.
+
+**The "can't keep updated in-process" reasoning turned out not to require a
+pure-Python Tor implementation to get around.** `tor-client-java` embeds Tor
+now by downloading and spawning the same official C `tor` binary Tor Project
+itself builds and signs - it doesn't maintain a Tor build at all, so there's
+nothing to "keep updated." That approach needs no FFI, no in-language Tor
+implementation, and no shared library - just `subprocess.Popen` and the
+stdlib's own HTTPS/hash/tar support (see `TODO.md` P0.5). Once implemented,
+"no embedded backend" here becomes inaccurate and this section should be
+rewritten, not just amended.
 
 ## Components
 

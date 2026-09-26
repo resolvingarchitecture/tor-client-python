@@ -8,7 +8,35 @@ A Python port of [`tor-client-java`](https://github.com/resolvingarchitecture/to
 mirrors the *local* backend of [`tor-client-rust`](https://github.com/resolvingarchitecture/tor-client-rust)
 (no embedded backend — Arti is Rust-only, see `DESIGN.md`).
 
-## Local Tor daemon setup
+**This local-daemon-only model is being retired.** `tor-client-java` no longer
+attaches to a pre-existing Tor instance at all - it downloads the official Tor
+Project binary, verifies it, and spawns/owns it directly, so there is no
+fallback to some other already-running Tor anywhere in that library. This port
+should adopt the same model; see "Embedded Tor (planned)" below and `TODO.md`.
+
+## Embedded Tor (planned)
+
+Not implemented yet. The plan, matching `tor-client-java`'s current design -
+and genuinely simpler here than in most other ports, since the stdlib already
+covers every primitive needed:
+
+1. Download the official Tor Project "Expert Bundle" for the current
+   OS/arch into a local cache (`urllib.request` - stdlib, HTTPS built in, no
+   new dependency), verify its SHA-256 against a value pinned in this port's
+   own source (`hashlib.sha256` - stdlib; never trusted from the network
+   alongside the download itself), and extract it with the stdlib `tarfile`
+   module - no need to shell out to the system `tar` the way `tor-client-java`
+   does, since Python's stdlib has a real tar reader.
+2. Spawn it (`subprocess.Popen`) with a generated `torrc` (`SocksPort auto`,
+   `ControlPort auto`, real `CookieAuthentication 1`,
+   `__OwningControllerProcess <our pid>`).
+3. Authenticate over the control port with the real cookie and block until
+   Tor reports 100% bootstrap - needs at least a minimal control client
+   (`AUTHENTICATE`, `GETINFO status/bootstrap-phase`, `GETINFO
+   net/listeners/socks`), a subset of the full control-protocol port already
+   tracked in `TODO.md` P2.
+
+## Local Tor daemon setup (current model, being retired)
 
 Install Tor (`apt install tor`, `brew install tor`, …) and make sure
 `/etc/tor/torrc` (or `~/.torrc`) has:
